@@ -15,9 +15,9 @@ Team Members:
 - Python
 
 ## Files
-9_PartA_trace_sched.py → CPU scheduling trace  
-9_partA_trace_tcp.py → TCP retransmission trace  
-9_partA_plot_latency.py → Tail latency plotting
+9_trace_sched.py → CPU scheduling trace  
+9_trace_tcp.py → TCP retransmission trace  
+9_plot_latency.py → Tail latency plotting
 
 ## Reproducing the Experiments
 This section describes how to reproduce the experiments on another Linux system. The experiments require:
@@ -100,3 +100,5 @@ cd wrk ```
 ### Run Medium Load Experiment
 - Increase concurrency: ``` wrk -t4 -c100 -d30s http://<service-url> ```
 - Record: latency metrics, TCP retransmissions and scheduler delay
+
+Kernel-level observability has been implemented using eBPF with BCC. Two kernel-side metrics are currently traced: TCP retransmissions using the tcp_retransmit_skb tracepoint, and CPU scheduling delay using scheduler tracepoints (sched_wakeup, sched_wakeup_new, and sched_switch). These probes were validated through baseline, medium-load, and heavy-load experiments, and the collected results show clear correlation between increased load, higher kernel activity, and increased tail latency.
