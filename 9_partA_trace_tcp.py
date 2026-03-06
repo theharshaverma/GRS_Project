@@ -7,41 +7,43 @@ Trace TCP retransmissions using eBPF and report counts every 10 seconds
 
 from bcc import BPF
 import time
+import ctypes as ct
 
 program = """
 BPF_HASH(counter, u64, u64);
 
 TRACEPOINT_PROBE(tcp, tcp_retransmit_skb) {
     u64 key = 0;
-    u64 *val = counter.lookup(&key);
+    u64 init_val = 1;
+    u64 *val;
 
+    val = counter.lookup(&key);
     if (val) {
         (*val)++;
     } else {
-        u64 init = 1;
-        counter.update(&key, &init);
+        counter.update(&key, &init_val);
     }
-
     return 0;
 }
 """
 
 b = BPF(text=program)
 
-print("Tracing TCP retransmissions... Press Ctrl-C to stop.")
+print("Tracing TCP retransmissions... Press Ctrl-C to stop.", flush=True)
+
+key = ct.c_ulonglong(0)
 
 try:
     while True:
         time.sleep(10)
+        table = b.get_table("counter")
 
-        key = 0
-        count = b["counter"].get(key)
-
-        if count:
-            print(f"[10s summary] TCP retransmissions = {count.value}")
-            b["counter"].clear()
+        if key in table:
+            count = table[key].value
+            print(f"[10s summary] TCP retransmissions = {count}", flush=True)
+            table.clear()
         else:
-            print("[10s summary] TCP retransmissions = 0")
+            print("[10s summary] TCP retransmissions = 0", flush=True)
 
 except KeyboardInterrupt:
-    print("\nStopping trace...")
+    print("\nStopping trace...", flush=True)
