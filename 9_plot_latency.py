@@ -1,26 +1,18 @@
 import matplotlib.pyplot as plt
 
-# Load levels
-load = [10]
+load = [10, 100]
 
-# Latency percentiles
-p50 = [6]
-p95 = [25]
-p99 = [60]
+p50 = [6, 12]
+p95 = [25, 40]
+p99 = [60, 80]
 
-# Kernel metrics
-tcp_retx = [6]
-sched_delay = [11]
-
-plt.figure()
-
-plt.plot(load, p50, marker='o', label='p50 latency')
-plt.plot(load, p95, marker='o', label='p95 latency')
-plt.plot(load, p99, marker='o', label='p99 latency')
+plt.plot(load, p50, marker='o', label='p50')
+plt.plot(load, p95, marker='o', label='p95')
+plt.plot(load, p99, marker='o', label='p99')
 
 plt.xlabel("Connections")
 plt.ylabel("Latency (ms)")
-plt.title("Baseline Latency Measurement")
+plt.title("Latency vs Load")
 plt.legend()
 plt.grid(True)
 
